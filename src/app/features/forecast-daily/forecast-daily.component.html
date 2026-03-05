@@ -1,0 +1,13 @@
+<section class="forecast-daily glass-card">
+  <h3 class="forecast-daily__title">7-Day Forecast</h3>
+  <div class="forecast-daily__grid">
+    @for (date of daily.time; track date; let i = $index) {
+      <app-forecast-day-card
+        [date]="date"
+        [tempMax]="daily.temperatureMax[i]"
+        [tempMin]="daily.temperatureMin[i]"
+        [weatherCode]="daily.weatherCode[i]"
+      />
+    }
+  </div>
+</section>

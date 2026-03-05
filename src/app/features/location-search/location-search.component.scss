@@ -1,0 +1,94 @@
+@use '../../../styles/variables' as *;
+
+.search {
+  position: relative;
+  z-index: 10;
+
+  &__field {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    padding: $space-sm $space-md;
+    border-radius: $glass-radius;
+  }
+
+  &__icon {
+    font-size: $font-size-md;
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  &__input {
+    flex: 1;
+    color: $text-primary;
+    font-size: $font-size-md;
+    background: transparent;
+
+    &::placeholder {
+      color: $text-tertiary;
+    }
+  }
+
+  &__spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  &__clear {
+    color: $text-secondary;
+    font-size: $font-size-sm;
+    padding: $space-xs;
+    border-radius: 50%;
+    transition: color 0.2s;
+
+    &:hover {
+      color: $text-primary;
+    }
+  }
+
+  &__results {
+    position: absolute;
+    top: calc(100% + $space-xs);
+    left: 0;
+    right: 0;
+    border-radius: $glass-radius-sm;
+    overflow: hidden;
+  }
+
+  &__result {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-sm $space-md;
+    cursor: pointer;
+    transition: background 0.15s;
+    gap: $space-sm;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    & + & {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  }
+
+  &__result-name {
+    font-size: $font-size-md;
+    font-weight: $font-weight-medium;
+  }
+
+  &__result-country {
+    font-size: $font-size-xs;
+    color: $text-secondary;
+  }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

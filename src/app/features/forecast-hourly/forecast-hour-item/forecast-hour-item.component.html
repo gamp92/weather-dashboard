@@ -1,0 +1,5 @@
+<article class="hour-item" [class.hour-item--current]="isCurrent">
+  <span class="hour-item__time">{{ isCurrent ? 'Now' : hourLabel() }}</span>
+  <span class="hour-item__icon">{{ icon() }}</span>
+  <span class="hour-item__temp">{{ temperature | temperature }}</span>
+</article>

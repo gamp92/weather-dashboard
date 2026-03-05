@@ -1,0 +1,74 @@
+@use '../../../styles/variables' as *;
+
+.conditions {
+  padding: $space-xl $space-xl $space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: $space-xs;
+  }
+
+  &__location {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    letter-spacing: -0.01em;
+  }
+
+  &__label {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+    font-weight: $font-weight-light;
+  }
+
+  &__main {
+    display: flex;
+    align-items: center;
+    gap: $space-md;
+  }
+
+  &__icon {
+    font-size: 4.5rem;
+    line-height: 1;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  }
+
+  &__temp {
+    font-size: $font-size-display;
+    font-weight: $font-weight-light;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: $text-primary;
+  }
+
+  &__meta {
+    display: flex;
+    gap: $space-xl;
+    flex-wrap: wrap;
+    padding-top: $space-md;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__stat-label {
+    font-size: $font-size-xs;
+    color: $text-tertiary;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__stat-value {
+    font-size: $font-size-md;
+    font-weight: $font-weight-medium;
+    color: $text-primary;
+  }
+}

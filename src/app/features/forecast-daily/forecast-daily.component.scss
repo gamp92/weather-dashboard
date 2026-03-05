@@ -1,0 +1,26 @@
+@use '../../../styles/variables' as *;
+
+.forecast-daily {
+  padding: $space-lg;
+
+  &__title {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: $space-md;
+  }
+
+  &__grid {
+    display: flex;
+    gap: $space-xs;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: $space-xs;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}

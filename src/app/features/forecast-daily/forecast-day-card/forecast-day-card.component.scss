@@ -1,0 +1,48 @@
+@use '../../../../styles/variables' as *;
+
+.day-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-xs;
+  padding: $space-md $space-sm;
+  border-radius: $glass-radius-sm;
+  background: rgba(255, 255, 255, 0.06);
+  transition: background 0.2s;
+  min-width: 72px;
+
+  &:hover {
+    background: $glass-bg-hover;
+  }
+
+  &__label {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__icon {
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+
+  &__temps {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  &__max {
+    font-size: $font-size-md;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+  }
+
+  &__min {
+    font-size: $font-size-sm;
+    color: $text-secondary;
+  }
+}

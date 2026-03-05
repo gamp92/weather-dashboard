@@ -1,0 +1,8 @@
+<article class="day-card">
+  <span class="day-card__label">{{ dayLabel() }}</span>
+  <span class="day-card__icon">{{ icon() }}</span>
+  <div class="day-card__temps">
+    <span class="day-card__max">{{ tempMax | temperature }}</span>
+    <span class="day-card__min">{{ tempMin | temperature }}</span>
+  </div>
+</article>
