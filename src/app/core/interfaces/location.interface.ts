@@ -31,6 +31,7 @@ export interface OpenMeteoGeoResult {
   readonly country: string;
   readonly timezone: string;
   readonly admin1?: string;
+  readonly population?: number;
 }
 
 export interface OpenMeteoGeoResponse {

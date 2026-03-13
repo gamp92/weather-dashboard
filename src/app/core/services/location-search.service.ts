@@ -19,7 +19,7 @@ const isSafeQuery = (query: string): boolean =>
   query.length >= MIN_QUERY_LENGTH && query.length <= MAX_QUERY_LENGTH;
 
 const buildGeoUrl = (query: string): string =>
-  `${GEO_API}?name=${encodeURIComponent(query)}&count=5&language=en&format=json&fields=id,name,latitude,longitude,country,timezone,admin1`;
+  `${GEO_API}?name=${encodeURIComponent(query)}&count=10&language=en&format=json&fields=id,name,latitude,longitude,country,timezone,admin1,population`;
 
 const mapResult = (r: OpenMeteoGeoResult): WeatherLocation => ({
   name: r.name,
@@ -30,8 +30,11 @@ const mapResult = (r: OpenMeteoGeoResult): WeatherLocation => ({
   admin1: r.admin1,
 });
 
+const byPopulation = (a: OpenMeteoGeoResult, b: OpenMeteoGeoResult): number =>
+  (b.population ?? 0) - (a.population ?? 0);
+
 const mapResponse = (r: OpenMeteoGeoResponse): WeatherLocation[] =>
-  (r.results ?? []).map(mapResult);
+  (r.results ?? []).slice().sort(byPopulation).slice(0, 5).map(mapResult);
 
 @Injectable({ providedIn: 'root' })
 export class LocationSearchService {
