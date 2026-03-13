@@ -25,12 +25,25 @@
     font-weight: $font-weight-light;
   }
 
+  &__clock {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
   &__time {
-    font-size: $font-size-md;
+    font-size: $font-size-lg;
     color: $text-primary;
-    font-weight: $font-weight-medium;
+    font-weight: $font-weight-semibold;
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0.02em;
+    letter-spacing: -0.01em;
+  }
+
+  &__date {
+    font-size: $font-size-xs;
+    color: $text-tertiary;
+    font-weight: $font-weight-regular;
+    letter-spacing: 0.01em;
   }
 
   &__main {

@@ -2,7 +2,10 @@
   <header class="conditions__header">
     <h2 class="conditions__location">{{ locationName }}</h2>
     <p class="conditions__label">{{ label() }}</p>
-    <p class="conditions__time" aria-label="Local time">{{ localTime() }}</p>
+    <div class="conditions__clock">
+      <p class="conditions__time" aria-label="Local time">{{ localTime() }}</p>
+      <p class="conditions__date">{{ localDate() }}</p>
+    </div>
   </header>
 
   <div class="conditions__main">

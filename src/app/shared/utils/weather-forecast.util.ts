@@ -29,9 +29,16 @@ export const timezoneToCity = (tz: string): string =>
 
 export const formatTimeInZone = (date: Date, timezone: string): string =>
   new Intl.DateTimeFormat([], {
-    hour: '2-digit',
+    hour: 'numeric',
     minute: '2-digit',
-    second: '2-digit',
     timeZone: timezone,
-    hour12: false,
+    hour12: true,
+  }).format(date);
+
+export const formatDateInZone = (date: Date, timezone: string): string =>
+  new Intl.DateTimeFormat([], {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+    timeZone: timezone,
   }).format(date);

@@ -3,7 +3,7 @@ import { CurrentWeather } from '../../core/interfaces/weather.interface';
 import { TemperaturePipe } from '../../shared/pipes/temperature.pipe';
 import { getWeatherIcon, getWeatherLabel } from '../../shared/utils/weather-code.util';
 import { degreeToCompass } from '../../shared/utils/wind-direction.util';
-import { formatTimeInZone } from '../../shared/utils/weather-forecast.util';
+import { formatDateInZone, formatTimeInZone } from '../../shared/utils/weather-forecast.util';
 import { ClockService } from '../../core/services/clock.service';
 
 @Component({
@@ -25,4 +25,5 @@ export class CurrentConditionsComponent {
   protected label(): string { return getWeatherLabel(this.weather.weatherCode); }
   protected windDirection(): string { return degreeToCompass(this.weather.windDirection); }
   protected localTime(): string { return formatTimeInZone(this.clock.tick(), this.timezone); }
+  protected localDate(): string { return formatDateInZone(this.clock.tick(), this.timezone); }
 }

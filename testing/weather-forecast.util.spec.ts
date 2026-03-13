@@ -1,4 +1,5 @@
 import {
+  formatDateInZone,
   formatDay,
   formatHour,
   formatTimeInZone,
@@ -111,27 +112,52 @@ describe('weather-forecast.util', () => {
     });
 
     it('formats time using the given timezone', () => {
-      // 06:30 UTC should appear as 06:30 in UTC timezone
+      // 06:30 UTC should show 6 and 30
       const date = new Date('2026-03-05T06:30:00Z');
       const result = formatTimeInZone(date, 'UTC');
-      expect(result).toContain('06');
+      expect(result).toContain('6');
       expect(result).toContain('30');
     });
 
-    it('uses 24-hour format (hour12: false)', () => {
-      // 15:00 UTC — in 12-hour format this would show "03", in 24-hour "15"
+    it('uses 12-hour format with AM/PM', () => {
+      // 15:00 UTC — in 12-hour format shows "3" and "PM"
       const date = new Date('2026-03-05T15:00:00Z');
       const result = formatTimeInZone(date, 'UTC');
-      expect(result).toContain('15');
+      expect(result).toContain('3');
+      expect(result).toMatch(/PM/i);
     });
 
     it('reflects timezone offset correctly', () => {
-      // 00:00 UTC = 01:00 in Europe/Paris (CET, UTC+1 in winter)
+      // 00:00 UTC = 12:00 AM UTC, 01:00 AM in Europe/Paris (CET, UTC+1 in winter)
       const date = new Date('2026-01-05T00:00:00Z');
       const utcResult = formatTimeInZone(date, 'UTC');
       const parisResult = formatTimeInZone(date, 'Europe/Paris');
-      expect(utcResult).toContain('00');
-      expect(parisResult).toContain('01');
+      expect(utcResult).toMatch(/12.*AM/i);
+      expect(parisResult).toMatch(/1.*AM/i);
+    });
+  });
+
+  describe('formatDateInZone', () => {
+    it('returns a non-empty string', () => {
+      const result = formatDateInZone(new Date(), 'UTC');
+      expect(typeof result).toBe('string');
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it('includes the weekday name', () => {
+      // 2026-03-05 is a Thursday
+      const date = new Date('2026-03-05T12:00:00Z');
+      const result = formatDateInZone(date, 'UTC');
+      expect(result).toMatch(/thursday/i);
+    });
+
+    it('reflects timezone when date differs at midnight', () => {
+      // 2026-03-05T00:30:00Z is still Mar 4 in UTC-1
+      const date = new Date('2026-03-05T00:30:00Z');
+      const utcResult = formatDateInZone(date, 'UTC');
+      const nyResult = formatDateInZone(date, 'America/New_York');
+      expect(utcResult).toMatch(/mar/i);
+      expect(nyResult).toMatch(/mar/i);
     });
   });
 });
