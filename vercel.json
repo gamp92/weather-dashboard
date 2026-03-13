@@ -1,0 +1,4 @@
+{
+  "outputDirectory": "dist/project-weather/browser",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}
