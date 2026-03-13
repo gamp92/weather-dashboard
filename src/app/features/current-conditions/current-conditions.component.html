@@ -7,7 +7,7 @@
 
   <div class="conditions__main">
     <span class="conditions__icon" aria-hidden="true">{{ icon() }}</span>
-    <span class="conditions__temp" aria-label="Temperature {{ weather.temperature | temperature }}">{{ weather.temperature | temperature }}</span>
+    <span class="conditions__temp" [attr.aria-label]="'Temperature ' + (weather.temperature | temperature)">{{ weather.temperature | temperature }}</span>
   </div>
 
   <div class="conditions__meta">
