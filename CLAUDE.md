@@ -88,6 +88,18 @@ Always call `isValidCoords()` from `src/app/shared/utils/coordinate-validator.ut
 - No `[innerHTML]` binding — ever
 - No `outerHTML` or `document.write()` — ever
 
+### Disable CSS inlining when using a strict CSP
+Angular's style optimizer generates `<link media="print" onload="this.media='all'">` by default.
+That `onload` is an inline event handler — blocked by `script-src 'self'` with no `'unsafe-inline'`.
+Always set this in `angular.json` production config:
+```json
+"optimization": { "scripts": true, "styles": false, "fonts": true }
+```
+
+### Use `[attr.aria-label]` for dynamic ARIA attributes
+`aria-label="{{ expression }}"` fails Angular's strict template compiler.
+Always use `[attr.aria-label]="expression"` for any ARIA attribute with a dynamic value.
+
 ---
 
 ## Testing
