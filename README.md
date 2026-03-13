@@ -122,6 +122,44 @@ Uses [Open-Meteo](https://open-meteo.com/) — completely free, no API key, GDPR
 
 ---
 
+## Linting
+
+ESLint v9 (flat config) is set up with Angular, TypeScript, and custom code rules.
+
+### Run linting
+
+```bash
+# Check for violations
+npm run lint
+
+# Auto-fix fixable violations
+npm run lint:fix
+```
+
+### What it enforces
+
+| Rule | What it catches |
+|---|---|
+| `no-else-return` | No `if/else` — use guard returns or strategy pattern |
+| `max-lines-per-function: 10` | Functions over 10 lines |
+| `max-lines: 400 / 100` | Files over 400 lines (TS) or 100 lines (HTML) |
+| `complexity: 5` | Logic with too many branches |
+| `max-depth: 2` | Nested blocks deeper than 2 levels |
+| `no-param-reassign` | Mutating function parameters |
+| `@typescript-eslint/no-explicit-any` | Use of `any` type |
+| `@typescript-eslint/explicit-function-return-type` | Missing return types |
+| `@typescript-eslint/prefer-readonly` | Class properties that could be `readonly` |
+| `@angular-eslint/prefer-on-push` | Components without `OnPush` change detection |
+| `@angular-eslint/no-output-native` | Output names that clash with DOM events |
+
+### Config file
+
+Rules are defined in [`eslint.config.js`](eslint.config.js). Source files use `tsconfig.app.json` for typed linting; test files use `tsconfig.spec.json`.
+
+> **Rule:** Lint must pass with zero errors before any task is considered done.
+
+---
+
 ## Code Rules
 
 See [CLAUDE.md](CLAUDE.md) for the full set of code quality and security rules enforced on this project.

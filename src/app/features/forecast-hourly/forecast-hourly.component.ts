@@ -1,7 +1,15 @@
 import { ChangeDetectionStrategy, Component, Input, computed, signal } from '@angular/core';
-import { HourlyForecast } from '../../core/interfaces/weather.interface';
+import { HourlyForecast, HourlyItem } from '../../core/interfaces/weather.interface';
 import { ForecastHourItemComponent } from './forecast-hour-item/forecast-hour-item.component';
 import { getNext24Hours } from '../../shared/utils/weather-forecast.util';
+
+const toHourlyItems = (h: HourlyForecast): HourlyItem[] =>
+  h.time.map((time, i) => ({
+    time,
+    temperature: h.temperature[i],
+    weatherCode: h.weatherCode[i],
+    isCurrent: i === 0,
+  }));
 
 @Component({
   selector: 'app-forecast-hourly',
@@ -23,8 +31,9 @@ export class ForecastHourlyComponent {
     this._currentTime.set(value);
   }
 
-  protected readonly next24 = computed(() => {
+  protected readonly items = computed((): HourlyItem[] => {
     const hourly = this._hourly();
-    return hourly ? getNext24Hours(hourly, this._currentTime()) : null;
+    const next24 = hourly ? getNext24Hours(hourly, this._currentTime()) : null;
+    return next24 ? toHourlyItems(next24) : [];
   });
 }

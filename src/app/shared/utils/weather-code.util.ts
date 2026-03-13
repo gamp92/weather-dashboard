@@ -1,4 +1,4 @@
-export type WeatherTheme = 'sunny' | 'cloudy' | 'foggy' | 'rainy' | 'snowy' | 'stormy';
+export type WeatherTheme = 'sunny' | 'cloudy' | 'foggy' | 'rainy' | 'snowy' | 'stormy' | 'night';
 
 export interface WeatherDescription {
   readonly label: string;
@@ -32,7 +32,18 @@ const WEATHER_CODE_MAP: Readonly<Record<number, WeatherDescription>> = {
   99: { label: 'Thunderstorm',    icon: '⛈️', theme: 'stormy' },
 } as const;
 
+type NightOverride = Pick<WeatherDescription, 'icon' | 'theme'>;
+
+const NIGHT_OVERRIDES: Readonly<Partial<Record<number, NightOverride>>> = {
+  0: { icon: '🌙', theme: 'night' },
+  1: { icon: '🌙', theme: 'night' },
+  2: { icon: '🌙', theme: 'night' },
+} as const;
+
 const FALLBACK: WeatherDescription = { label: 'Unknown', icon: '❓', theme: 'cloudy' };
+
+const nightOverride = (code: number, isDay: boolean): NightOverride | undefined =>
+  isDay ? undefined : NIGHT_OVERRIDES[code];
 
 export const getWeatherDescription = (code: number): WeatherDescription =>
   WEATHER_CODE_MAP[code] ?? FALLBACK;
@@ -40,8 +51,8 @@ export const getWeatherDescription = (code: number): WeatherDescription =>
 export const getWeatherLabel = (code: number): string =>
   getWeatherDescription(code).label;
 
-export const getWeatherIcon = (code: number): string =>
-  getWeatherDescription(code).icon;
+export const getWeatherIcon = (code: number, isDay = true): string =>
+  nightOverride(code, isDay)?.icon ?? getWeatherDescription(code).icon;
 
-export const getWeatherTheme = (code: number): WeatherTheme =>
-  getWeatherDescription(code).theme;
+export const getWeatherTheme = (code: number, isDay = true): WeatherTheme =>
+  nightOverride(code, isDay)?.theme ?? getWeatherDescription(code).theme;

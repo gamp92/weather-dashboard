@@ -25,6 +25,14 @@
     font-weight: $font-weight-light;
   }
 
+  &__time {
+    font-size: $font-size-md;
+    color: $text-primary;
+    font-weight: $font-weight-medium;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
   &__main {
     display: flex;
     align-items: center;

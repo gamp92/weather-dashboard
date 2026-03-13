@@ -1,12 +1,11 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   EventEmitter,
   Input,
   OnDestroy,
   Output,
-  ViewChild,
+  signal,
 } from '@angular/core';
 import { WeatherLocation } from '../../core/interfaces/location.interface';
 
@@ -21,33 +20,34 @@ export class LocationSearchComponent implements OnDestroy {
   @Input() results: readonly WeatherLocation[] = [];
   @Input() loading = false;
 
-  @Output() readonly search = new EventEmitter<string>();
+  @Output() readonly citySearch = new EventEmitter<string>();
   @Output() readonly locationSelected = new EventEmitter<WeatherLocation>();
   @Output() readonly cleared = new EventEmitter<void>();
 
-  @ViewChild('searchInput') private readonly searchInput!: ElementRef<HTMLInputElement>;
-
+  protected readonly inputValue = signal('');
   private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected onInput(event: Event): void {
-    const query = (event.target as HTMLInputElement).value.trim();
+    const raw = (event.target as HTMLInputElement).value;
+    this.inputValue.set(raw);
     this.clearTimer();
-    this.debounceTimer = setTimeout(() => this.emitSearch(query), 300);
+    this.debounceTimer = setTimeout(() => { this.emitSearch(raw.trim()); }, 300);
   }
 
   protected onSelect(location: WeatherLocation): void {
     this.locationSelected.emit(location);
-    this.searchInput.nativeElement.value = `${location.name}, ${location.country}`;
+    this.inputValue.set(`${location.name}, ${location.country}`);
     this.cleared.emit();
   }
 
   protected onClear(): void {
-    this.searchInput.nativeElement.value = '';
+    this.inputValue.set('');
     this.cleared.emit();
   }
 
   private emitSearch(query: string): void {
-    query.length >= 2 ? this.search.emit(query) : this.cleared.emit();
+    if (query.length >= 2) { this.citySearch.emit(query); return; }
+    this.cleared.emit();
   }
 
   private clearTimer(): void {

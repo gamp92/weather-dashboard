@@ -31,11 +31,12 @@ describe('LocationSearchService', () => {
     expect(service.searchLoading()).toBe(false);
   });
 
-  it('sets loading when search is called', () => {
+  it('sets loading when search is called', fakeAsync(() => {
     service.search('London');
     expect(service.searchLoading()).toBe(true);
+    tick(300);
     httpMock.expectOne(req => req.url.includes('geocoding-api')).flush(mockGeoResponse);
-  });
+  }));
 
   it('populates results after debounce', fakeAsync(() => {
     service.search('London');

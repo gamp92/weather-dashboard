@@ -1,7 +1,9 @@
 import {
   formatDay,
   formatHour,
+  formatTimeInZone,
   getNext24Hours,
+  timezoneToCity,
 } from '../src/app/shared/utils/weather-forecast.util';
 import { HourlyForecast } from '../src/app/core/interfaces/weather.interface';
 
@@ -48,6 +50,88 @@ describe('weather-forecast.util', () => {
       const result = formatDay('2024-01-15');
       expect(typeof result).toBe('string');
       expect(result.length).toBeGreaterThan(0);
+    });
+
+    // Regression: date-only strings like "2026-03-05" were parsed as UTC midnight.
+    // In UTC-N timezones this shifted to the previous calendar day (e.g. Wed instead of Thu).
+    // Fix: append T12:00:00 so parsing is local noon — never shifts day regardless of offset.
+    it('uses local noon parsing so day is never shifted by UTC offset', () => {
+      const dateStr = '2026-03-05';
+      const result = formatDay(dateStr);
+      const expected = new Date(`${dateStr}T12:00:00`).toLocaleDateString([], { weekday: 'short' });
+      expect(result).toBe(expected);
+    });
+
+    it('local noon date object for 2026-03-05 is a Thursday', () => {
+      // Confirms the anchor date used in the regression test is correct (getDay 4 = Thursday)
+      expect(new Date('2026-03-05T12:00:00').getDay()).toBe(4);
+    });
+
+    it('UTC midnight for same date can differ from local noon in negative-offset zones', () => {
+      // Documents WHY the bug existed: UTC midnight and local noon give different getDay()
+      // in negative UTC offset environments. In UTC, both are the same — test still documents intent.
+      const utcMidnight = new Date('2026-03-05').getDay();
+      const localNoon = new Date('2026-03-05T12:00:00').getDay();
+      // In UTC the values match; in UTC-N they would differ (noon stays Thursday, midnight shifts).
+      // Our implementation always uses local noon so it always matches the date's intended weekday.
+      expect(localNoon).toBe(4); // Thursday — always correct
+      expect(utcMidnight).toBeGreaterThanOrEqual(3); // 3 (Wed) in UTC-N, 4 (Thu) in UTC+
+    });
+  });
+
+  describe('timezoneToCity', () => {
+    it('extracts city from standard timezone string', () => {
+      expect(timezoneToCity('Europe/London')).toBe('London');
+    });
+
+    it('replaces underscores with spaces', () => {
+      expect(timezoneToCity('America/New_York')).toBe('New York');
+      expect(timezoneToCity('America/Los_Angeles')).toBe('Los Angeles');
+      expect(timezoneToCity('Asia/Ho_Chi_Minh')).toBe('Ho Chi Minh');
+    });
+
+    it('returns last segment for multi-part timezone', () => {
+      expect(timezoneToCity('America/Indiana/Indianapolis')).toBe('Indianapolis');
+    });
+
+    it('returns the string itself when no slash present', () => {
+      expect(timezoneToCity('UTC')).toBe('UTC');
+    });
+
+    it('returns Your Location for empty string', () => {
+      expect(timezoneToCity('')).toBe('Your Location');
+    });
+  });
+
+  describe('formatTimeInZone', () => {
+    it('returns a non-empty string', () => {
+      const result = formatTimeInZone(new Date(), 'UTC');
+      expect(typeof result).toBe('string');
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it('formats time using the given timezone', () => {
+      // 06:30 UTC should appear as 06:30 in UTC timezone
+      const date = new Date('2026-03-05T06:30:00Z');
+      const result = formatTimeInZone(date, 'UTC');
+      expect(result).toContain('06');
+      expect(result).toContain('30');
+    });
+
+    it('uses 24-hour format (hour12: false)', () => {
+      // 15:00 UTC — in 12-hour format this would show "03", in 24-hour "15"
+      const date = new Date('2026-03-05T15:00:00Z');
+      const result = formatTimeInZone(date, 'UTC');
+      expect(result).toContain('15');
+    });
+
+    it('reflects timezone offset correctly', () => {
+      // 00:00 UTC = 01:00 in Europe/Paris (CET, UTC+1 in winter)
+      const date = new Date('2026-01-05T00:00:00Z');
+      const utcResult = formatTimeInZone(date, 'UTC');
+      const parisResult = formatTimeInZone(date, 'Europe/Paris');
+      expect(utcResult).toContain('00');
+      expect(parisResult).toContain('01');
     });
   });
 });

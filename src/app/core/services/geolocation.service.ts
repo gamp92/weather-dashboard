@@ -9,9 +9,9 @@ const toCoords = (pos: GeolocationPosition): GeolocationCoords => ({
 });
 
 const getPosition = (): Promise<GeolocationPosition> =>
-  new Promise((resolve, reject) =>
-    navigator.geolocation.getCurrentPosition(resolve, reject)
-  );
+  new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
 
 @Injectable({ providedIn: 'root' })
 export class GeolocationService {

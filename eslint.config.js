@@ -5,7 +5,8 @@ import angular from "angular-eslint";
 
 export default tseslint.config(
   {
-    files: ["**/*.ts"],
+    // ── Source files: full typed linting ────────────────────────────
+    files: ["src/**/*.ts"],
     extends: [
       eslint.configs.recommended,
       ...tseslint.configs.strictTypeChecked,
@@ -13,8 +14,14 @@ export default tseslint.config(
       ...angular.configs.tsRecommended,
     ],
     processor: angular.processInlineTemplates,
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.app.json",
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
     rules: {
-      // ── No if/else ──────────────────────────────────────────────
+      // ── No if/else ───────────────────────────────────────────────
       "no-else-return": ["error", { allowElseIf: false }],
 
       // ── Function length: max 10 lines ────────────────────────────
@@ -46,6 +53,7 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/prefer-readonly": "error",
       "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-extraneous-class": ["error", { allowWithDecorator: true }],
 
       // ── Angular specific ─────────────────────────────────────────
       "@angular-eslint/prefer-on-push-component-change-detection": "error",
@@ -56,10 +64,24 @@ export default tseslint.config(
     },
   },
   {
+    // ── Test + config files: lighter rules, spec tsconfig ───────────
+    files: ["testing/**/*.ts", "jest.config.ts"],
+    extends: [
+      eslint.configs.recommended,
+      ...tseslint.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: "./tsconfig.spec.json",
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+  },
+  {
+    // ── HTML templates ───────────────────────────────────────────────
     files: ["**/*.html"],
     extends: [...angular.configs.templateRecommended],
     rules: {
-      // ── HTML file length: max 100 lines ──────────────────────────
       "max-lines": ["error", { max: 100, skipBlankLines: true }],
     },
   }

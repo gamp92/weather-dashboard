@@ -1,81 +1,129 @@
-# AI Code Rules — Non-Negotiable
+# Weather Dashboard — Project Rules
 
-## Structure
-- No `if/else` — use the **Strategy Pattern** instead (lookup maps, polymorphism, or guard returns)
-- No if-wrapped code blocks — flatten logic with guard returns
-- No files over 300–400 lines (HTML files max 100 lines)
-- No functions over 10 lines
-- **For loops belong in child components or a dedicated function** — never inline iteration in a component
+Global rules from `~/.claude/CLAUDE.md` apply automatically.
+This file adds rules that are specific to this project and stack.
 
-## Design
-- Pure functions only — no side effects inside business logic
-- Single Responsibility Principle (SRP) — one reason to change per unit
-- **Always use interfaces** — no inline object types, no `any`, no raw primitives for domain concepts
-- No subscribers/observables in components when avoidable — push to services or state layers
+---
 
-## Quality
-- **AUDIT AFTER EVERY TASK** against these rules — non-negotiable
-- **Boy Scout Rule** — always leave the code cleaner than you found it
-- **TDD on every bug** — write a failing test first, then fix
+## Stack
 
-## Linting (Angular + TypeScript)
-- Config: `eslint.config.js` (flat config, ESLint v9+)
-- **Always run lint and fix all errors before a task is done**
-- Key rules enforced by ESLint:
-  - `no-else-return` — no if/else
-  - `max-lines-per-function: 10` — function length limit
-  - `max-lines: 400` (TS) / `100` (HTML) — file length limits
-  - `complexity: 5` / `max-depth: 2` — keeps logic flat
-  - `no-param-reassign` — enforces pure function style
-  - `@typescript-eslint/explicit-function-return-type` — no implicit returns
-  - `@typescript-eslint/no-explicit-any` — no `any`
-  - `@angular-eslint/prefer-on-push-component-change-detection` — OnPush required
-- Install deps: `npm i -D eslint @eslint/js typescript-eslint angular-eslint`
-- Run: `npx eslint .` / `npx eslint . --fix`
+- **Framework:** Angular 19, standalone components, OnPush change detection
+- **Language:** TypeScript (strict mode)
+- **State:** Angular Signals (`signal`, `computed`, `effect`)
+- **HTTP:** Angular `HttpClient` + RxJS
+- **Tests:** Jest + `jest-preset-angular` — run with `npx jest`
+- **Lint:** ESLint v9 flat config — run with `npx eslint .` / `npx eslint . --fix`
+- **API:** Open-Meteo (weather + geocoding) — no API key required, HTTPS only
 
-## Security — Non-Negotiable
+---
 
-### Input & Output
-- **Never render raw error messages to the UI** — always use `sanitizeError()` from `error-sanitizer.util.ts`
-- **Always validate user input** before using it — length, format, range
-- **Always `encodeURIComponent()`** any user-provided value in a URL query string
-- **No `innerHTML`, `outerHTML`, or `document.write()`** — ever
-- **No `bypassSecurityTrust*`** (Angular DomSanitizer bypass) — ever
-- **No `eval()`, `new Function()`, `setTimeout(string)`** — ever
+## Project Structure
 
-### API & Data
-- **HTTPS only** — no HTTP API calls, no mixed content
-- **Validate coordinates** before sending to external APIs — use `isValidCoords()` from `coordinate-validator.util.ts`
-- **Type all API responses** with interfaces — no `any` on response types
-- **Never expose stack traces, server errors, or internal paths** to the browser UI
+```
+src/app/
+  core/
+    interfaces/   — all domain + API response types
+    services/     — business logic, HTTP, state (no UI code here)
+  features/       — one folder per page/feature, each self-contained
+  shared/
+    pipes/        — pure transform pipes
+    utils/        — pure functions only, no Angular dependencies
+testing/          — all spec files live here (not next to source)
+```
 
-### HTML & Templates
-- **All `<input>` fields must have `maxlength`** and appropriate type
-- **Use Angular template binding `{{ }}`** — never string-concatenate into HTML
-- **No dynamic `[innerHTML]` binding** unless explicitly sanitized
+---
 
-### Content Security Policy
-- CSP is defined in `src/index.html` — do not weaken it
-- Any new external API domain must be added to the `connect-src` directive in CSP
-- Do not add `'unsafe-eval'` to `script-src`
-- Do not add `'unsafe-inline'` to `script-src`
+## Angular-Specific Patterns
 
-### Permissions
-- Geolocation, camera, microphone — only request what is needed
-- Permissions-Policy is set in `src/index.html` — do not expand it without review
+### All components must use OnPush
+```ts
+@Component({ changeDetection: ChangeDetectionStrategy.OnPush })
+```
+ESLint enforces this via `@angular-eslint/prefer-on-push-component-change-detection`.
 
-### Security Audit Checklist (run after every task)
-- [ ] No raw error messages shown to user
-- [ ] All inputs have `maxlength` + type validation
-- [ ] All URL params use `encodeURIComponent()`
-- [ ] No new external domains without CSP update
-- [ ] No `bypassSecurityTrust*` or `innerHTML`
-- [ ] HTTPS only for all API calls
-- [ ] Coordinates validated before API use
+### Signal setter pattern for all @Input properties
+Use a private signal + setter instead of a plain `@Input()` field, so inputs integrate with the signal graph.
+```ts
+// ❌ Wrong
+@Input({ required: true }) weather!: WeatherData;
+
+// ✅ Correct
+private readonly _weather = signal<WeatherData | null>(null);
+@Input({ required: true }) set weather(v: WeatherData) { this._weather.set(v); }
+protected readonly temp = computed(() => this._weather()?.temperature ?? 0);
+```
+
+### No subscriptions in components
+Subscriptions belong in services. Components read signals exposed by services, never subscribe to observables directly.
+
+### Subscription cleanup in services
+Use `takeUntilDestroyed()` for root services that set up pipes in the constructor. Use `takeUntilDestroyed(this.destroyRef)` when outside an injection context (inject `DestroyRef` explicitly).
+
+### Use switchMap for search/cancellable HTTP
+Any user-triggered HTTP call (search, location change) must use `switchMap` so rapid triggers cancel the previous in-flight request.
+
+### No direct DOM manipulation
+Never use `nativeElement`, `document.querySelector`, or similar. Drive all view state through signals and Angular template bindings.
+
+---
+
+## Project-Specific Security
+
+### Error sanitization
+Always use `sanitizeError()` from `src/app/shared/utils/error-sanitizer.util.ts`.
+Never pass raw `error.message` or `HttpErrorResponse` details to the UI.
+When adding new patterns to `ERROR_MESSAGE_MAP`, specific patterns (e.g. `': 429'`) must come **before** the generic catch-all (`'Http failure response'`) — the first match wins. Getting this order wrong causes the wrong message to be shown and is hard to spot without a targeted test.
+
+### Coordinate validation
+Always call `isValidCoords()` from `src/app/shared/utils/coordinate-validator.util.ts` before passing coordinates to the Open-Meteo API.
+
+### CSP lives in `src/index.html`
+- Do not weaken the existing CSP
+- Any new external domain must be added to `connect-src`
+- Never add `'unsafe-eval'` or `'unsafe-inline'` to `script-src`
+- Permissions-Policy is also set there — do not expand it
+
+### Angular-specific bans
+- No `bypassSecurityTrust*` (DomSanitizer bypass) — ever
+- No `[innerHTML]` binding — ever
+- No `outerHTML` or `document.write()` — ever
+
+---
+
+## Testing
+
+- Test files live in `testing/` (not co-located with source)
+- Run: `npx jest` / `npx jest --no-coverage`
+- Use `fakeAsync` + `tick(ms)` for anything with `debounceTime` or `setTimeout`
+- Use `HttpTestingController` for all HTTP — never mock `HttpClient` directly
+- TDD on every bug: write a failing test first, then fix
+
+---
+
+## Linting Rules (enforced by ESLint)
+
+| Rule | Limit |
+|---|---|
+| `max-lines-per-function` | 10 lines |
+| `max-lines` | 400 lines (TS), 100 lines (HTML) |
+| `complexity` | 5 |
+| `max-depth` | 2 |
+| `no-else-return` | no if/else |
+| `no-param-reassign` | pure function style |
+| `@typescript-eslint/no-explicit-any` | no `any` |
+| `@typescript-eslint/explicit-function-return-type` | always |
+
+---
 
 ## Workflow
-1. Complete the task
-2. Run `npx eslint .` — fix all errors
-3. Run the **Security Audit Checklist** above
-4. Audit the changed code against all code rules
-5. Fix any violations before considering the task done
+
+1. `npx eslint . --fix` — fix all lint errors
+2. `npx jest --no-coverage` — all tests must pass
+3. Security checklist:
+   - [ ] No raw error messages shown to user — used `sanitizeError()`
+   - [ ] All `<input>` fields have `maxlength` + `type`
+   - [ ] URL params use `encodeURIComponent()`
+   - [ ] No new external domains without CSP update in `src/index.html`
+   - [ ] No `bypassSecurityTrust*` or `innerHTML`
+   - [ ] Coordinates validated with `isValidCoords()` before API use
+4. Audit changed code against Angular patterns above

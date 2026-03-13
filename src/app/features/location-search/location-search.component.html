@@ -1,28 +1,37 @@
 <div class="search">
   <div class="search__field glass-card">
-    <span class="search__icon">🔍</span>
+    <span class="search__icon" aria-hidden="true">🔍</span>
     <input
-      #searchInput
       class="search__input"
       type="text"
       placeholder="Search city…"
       autocomplete="off"
       maxlength="100"
       spellcheck="false"
+      aria-label="Search for a city"
+      aria-autocomplete="list"
+      aria-controls="search-results"
+      [value]="inputValue()"
       (input)="onInput($event)"
     />
     @if (loading) {
-      <span class="search__spinner"></span>
+      <span class="search__spinner" role="status" aria-label="Searching…"></span>
     }
-    @if (searchInput.value) {
-      <button class="search__clear" (click)="onClear()" aria-label="Clear">✕</button>
+    @if (inputValue()) {
+      <button class="search__clear" (click)="onClear()" aria-label="Clear search">✕</button>
     }
   </div>
 
   @if (results.length > 0) {
-    <ul class="search__results glass-card">
+    <ul id="search-results" class="search__results glass-card" role="listbox" aria-label="City suggestions">
       @for (location of results; track location.name) {
-        <li class="search__result" (click)="onSelect(location)">
+        <li
+          class="search__result"
+          role="option"
+          tabindex="0"
+          (click)="onSelect(location)"
+          (keydown.enter)="onSelect(location)"
+        >
           <span class="search__result-name">{{ location.name }}</span>
           <span class="search__result-country">{{ location.country }}</span>
         </li>

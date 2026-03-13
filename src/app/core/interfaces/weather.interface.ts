@@ -7,6 +7,7 @@ export interface CurrentWeather {
   readonly windSpeed: number;
   readonly windDirection: number;
   readonly weatherCode: number;
+  readonly isDay: boolean;
   readonly time: string;
 }
 
@@ -36,6 +37,22 @@ export interface WeatherState {
   readonly error: string | null;
 }
 
+// ── View model types ──────────────────────────────────────────────────────────
+
+export interface HourlyItem {
+  readonly time: string;
+  readonly temperature: number;
+  readonly weatherCode: number;
+  readonly isCurrent: boolean;
+}
+
+export interface DailyItem {
+  readonly date: string;
+  readonly tempMax: number;
+  readonly tempMin: number;
+  readonly weatherCode: number;
+}
+
 // ── Open-Meteo API response types ────────────────────────────────────────────
 
 export interface OpenMeteoCurrentResponse {
@@ -45,6 +62,7 @@ export interface OpenMeteoCurrentResponse {
   readonly wind_speed_10m: number;
   readonly wind_direction_10m: number;
   readonly weather_code: number;
+  readonly is_day: number;
   readonly time: string;
 }
 

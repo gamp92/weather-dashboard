@@ -5,6 +5,7 @@ import { GeolocationService } from './geolocation.service';
 import { LocationSearchService } from './location-search.service';
 import { WeatherLocation } from '../interfaces/location.interface';
 import { getWeatherTheme } from '../../shared/utils/weather-code.util';
+import { timezoneToCity } from '../../shared/utils/weather-forecast.util';
 
 @Injectable({ providedIn: 'root' })
 export class WeatherFacadeService {
@@ -19,7 +20,10 @@ export class WeatherFacadeService {
   readonly searchResults = this.locationService.searchResults;
   readonly searchLoading = this.locationService.searchLoading;
   readonly theme = computed(() =>
-    getWeatherTheme(this.weather()?.current.weatherCode ?? 0)
+    getWeatherTheme(this.weather()?.current.weatherCode ?? 0, this.weather()?.current.isDay ?? true)
+  );
+  readonly locationName = computed(() =>
+    this.location()?.name ?? timezoneToCity(this.weather()?.timezone ?? '')
   );
 
   initGeolocation(): void {
@@ -27,8 +31,8 @@ export class WeatherFacadeService {
       .getCurrentCoords()
       .pipe(take(1))
       .subscribe({
-        next: coords => this.weatherService.loadWeatherByCoords(coords),
-        error: () => this.weatherService.loadDefault(),
+        next: coords => { this.weatherService.loadWeatherByCoords(coords); },
+        error: () => { this.weatherService.loadDefault(); },
       });
   }
 

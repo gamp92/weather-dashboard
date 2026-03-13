@@ -19,7 +19,19 @@ export const formatHour = (isoTime: string): string =>
   new Date(isoTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
 export const formatDay = (isoDate: string): string =>
-  new Date(isoDate).toLocaleDateString([], { weekday: 'short' });
+  new Date(`${isoDate}T12:00:00`).toLocaleDateString([], { weekday: 'short' });
 
 export const formatFullDate = (isoDate: string): string =>
-  new Date(isoDate).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+  new Date(`${isoDate}T12:00:00`).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+
+export const timezoneToCity = (tz: string): string =>
+  tz ? (tz.split('/').at(-1)?.replace(/_/g, ' ') ?? tz) : 'Your Location';
+
+export const formatTimeInZone = (date: Date, timezone: string): string =>
+  new Intl.DateTimeFormat([], {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: timezone,
+    hour12: false,
+  }).format(date);

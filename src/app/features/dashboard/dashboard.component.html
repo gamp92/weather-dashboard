@@ -3,26 +3,26 @@
     <app-location-search
       [results]="facade.searchResults()"
       [loading]="facade.searchLoading()"
-      (search)="onSearch($event)"
+      (citySearch)="onSearch($event)"
       (locationSelected)="onLocationSelected($event)"
       (cleared)="onSearchClear()"
     />
 
     @if (facade.loading()) {
-      <div class="dashboard__loading">
-        <span class="dashboard__spinner"></span>
+      <div class="dashboard__loading" role="status" aria-live="polite">
+        <span class="dashboard__spinner" aria-hidden="true"></span>
         <p>Fetching weather…</p>
       </div>
     }
 
     @if (facade.error()) {
-      <div class="dashboard__error">
+      <div class="dashboard__error" role="alert" aria-live="assertive">
         <p>{{ facade.error() }}</p>
       </div>
     }
 
     @if (facade.weather(); as weather) {
-      <app-current-conditions [weather]="weather.current" [location]="facade.location()" />
+      <app-current-conditions [weather]="weather.current" [locationName]="facade.locationName()" [timezone]="weather.timezone" />
       <app-forecast-hourly [hourly]="weather.hourly" [currentTime]="weather.current.time" />
       <app-forecast-daily [daily]="weather.daily" />
     }

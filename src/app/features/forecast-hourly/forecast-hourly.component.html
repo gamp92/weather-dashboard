@@ -1,13 +1,13 @@
 <section class="forecast-hourly glass-card">
   <h3 class="forecast-hourly__title">Hourly Forecast</h3>
-  @if (next24(); as hourly) {
+  @if (items().length) {
     <div class="forecast-hourly__row">
-      @for (time of hourly.time; track time; let i = $index) {
+      @for (item of items(); track item.time) {
         <app-forecast-hour-item
-          [time]="time"
-          [temperature]="hourly.temperature[i]"
-          [weatherCode]="hourly.weatherCode[i]"
-          [isCurrent]="i === 0"
+          [time]="item.time"
+          [temperature]="item.temperature"
+          [weatherCode]="item.weatherCode"
+          [isCurrent]="item.isCurrent"
         />
       }
     </div>
