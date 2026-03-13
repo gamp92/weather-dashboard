@@ -6,6 +6,7 @@ export interface WeatherLocation {
   readonly longitude: number;
   readonly country: string;
   readonly timezone: string;
+  readonly admin1?: string;
 }
 
 export interface GeolocationCoords {
@@ -29,6 +30,7 @@ export interface OpenMeteoGeoResult {
   readonly longitude: number;
   readonly country: string;
   readonly timezone: string;
+  readonly admin1?: string;
 }
 
 export interface OpenMeteoGeoResponse {

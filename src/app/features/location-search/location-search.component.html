@@ -24,7 +24,7 @@
 
   @if (results.length > 0) {
     <ul id="search-results" class="search__results glass-card" role="listbox" aria-label="City suggestions">
-      @for (location of results; track location.name) {
+      @for (location of results; track location.latitude + ',' + location.longitude) {
         <li
           class="search__result"
           role="option"
@@ -32,7 +32,7 @@
           (click)="onSelect(location)"
           (keydown.enter)="onSelect(location)"
         >
-          <span class="search__result-name">{{ location.name }}</span>
+          <span class="search__result-name">{{ location.name }}@if (location.admin1) {, {{ location.admin1 }}}</span>
           <span class="search__result-country">{{ location.country }}</span>
         </li>
       }
