@@ -24,8 +24,10 @@ export const formatDay = (isoDate: string): string =>
 export const formatFullDate = (isoDate: string): string =>
   new Date(`${isoDate}T12:00:00`).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
 
-export const timezoneToCity = (tz: string): string =>
-  tz ? (tz.split('/').at(-1)?.replace(/_/g, ' ') ?? tz) : 'Your Location';
+export const timezoneToCity = (tz: string): string => {
+  if (!tz.includes('/')) return 'Your Location';
+  return tz.split('/').at(-1)?.replace(/_/g, ' ') ?? 'Your Location';
+};
 
 export const formatTimeInZone = (date: Date, timezone: string): string =>
   new Intl.DateTimeFormat([], {

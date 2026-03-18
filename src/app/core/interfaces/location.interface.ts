@@ -21,6 +21,14 @@ export interface LocationState {
   readonly searchError: string | null;
 }
 
+// ── BigDataCloud Reverse Geocoding API response type ─────────────────────────
+
+export interface BigDataCloudResponse {
+  readonly city: string;
+  readonly principalSubdivision: string;
+  readonly countryName: string;
+}
+
 // ── Open-Meteo Geocoding API response types ───────────────────────────────────
 
 export interface OpenMeteoGeoResult {

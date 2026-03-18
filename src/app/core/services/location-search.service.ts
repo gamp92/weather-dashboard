@@ -2,8 +2,10 @@ import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, map, switchMap, take } from 'rxjs/operators';
 import {
+  BigDataCloudResponse,
+  GeolocationCoords,
   LocationState,
   OpenMeteoGeoResponse,
   OpenMeteoGeoResult,
@@ -12,6 +14,7 @@ import {
 import { sanitizeError } from '../../shared/utils/error-sanitizer.util';
 
 const GEO_API = 'https://geocoding-api.open-meteo.com/v1/search';
+const REVERSE_GEO_API = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
 const MAX_QUERY_LENGTH = 100;
 const MIN_QUERY_LENGTH = 2;
 
@@ -32,6 +35,18 @@ const mapResult = (r: OpenMeteoGeoResult): WeatherLocation => ({
 
 const byPopulation = (a: OpenMeteoGeoResult, b: OpenMeteoGeoResult): number =>
   (b.population ?? 0) - (a.population ?? 0);
+
+const buildReverseGeoUrl = (coords: GeolocationCoords): string =>
+  `${REVERSE_GEO_API}?latitude=${String(coords.latitude)}&longitude=${String(coords.longitude)}&localityLanguage=en`;
+
+const mapReverseResult = (r: BigDataCloudResponse, coords: GeolocationCoords): WeatherLocation => ({
+  name: r.city || r.principalSubdivision || r.countryName,
+  latitude: coords.latitude,
+  longitude: coords.longitude,
+  country: r.countryName,
+  timezone: '',
+  admin1: r.principalSubdivision,
+});
 
 const mapResponse = (r: OpenMeteoGeoResponse): WeatherLocation[] =>
   (r.results ?? []).slice().sort(byPopulation).slice(0, 5).map(mapResult);
@@ -90,5 +105,18 @@ export class LocationSearchService {
 
   clearResults(): void {
     this.state.update(s => ({ ...s, searchResults: [] }));
+  }
+
+  reverseGeocode(coords: GeolocationCoords): Observable<WeatherLocation> {
+    return this.http.get<BigDataCloudResponse>(buildReverseGeoUrl(coords)).pipe(
+      map(r => mapReverseResult(r, coords)),
+    );
+  }
+
+  setLocationFromCoords(coords: GeolocationCoords): void {
+    this.reverseGeocode(coords).pipe(take(1)).subscribe({
+      next: loc => { this.selectLocation(loc); },
+      error: () => { /* non-critical: weather still loads without city name */ },
+    });
   }
 }
