@@ -95,8 +95,12 @@ describe('weather-forecast.util', () => {
       expect(timezoneToCity('America/Indiana/Indianapolis')).toBe('Indianapolis');
     });
 
-    it('returns the string itself when no slash present', () => {
-      expect(timezoneToCity('UTC')).toBe('UTC');
+    it('returns Your Location when no slash present (e.g. UTC)', () => {
+      expect(timezoneToCity('UTC')).toBe('Your Location');
+    });
+
+    it('returns Your Location for raw UTC offset strings like GMT+5', () => {
+      expect(timezoneToCity('GMT+5')).toBe('Your Location');
     });
 
     it('returns Your Location for empty string', () => {
