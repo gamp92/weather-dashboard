@@ -10,13 +10,13 @@
 
   <div class="conditions__main">
     <span class="conditions__icon" aria-hidden="true">{{ icon() }}</span>
-    <span class="conditions__temp" [attr.aria-label]="'Temperature ' + (weather.temperature | temperature)">{{ weather.temperature | temperature }}</span>
+    <span class="conditions__temp" [attr.aria-label]="'Temperature ' + (weather.temperature | temperature : unit())">{{ weather.temperature | temperature : unit() }}</span>
   </div>
 
   <div class="conditions__meta">
     <div class="conditions__stat">
       <span class="conditions__stat-label">Feels like</span>
-      <span class="conditions__stat-value">{{ weather.feelsLike | temperature }}</span>
+      <span class="conditions__stat-value">{{ weather.feelsLike | temperature : unit() }}</span>
     </div>
     <div class="conditions__stat">
       <span class="conditions__stat-label">Humidity</span>

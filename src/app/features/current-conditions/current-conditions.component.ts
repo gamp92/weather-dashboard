@@ -5,6 +5,7 @@ import { getWeatherIcon, getWeatherLabel } from '../../shared/utils/weather-code
 import { degreeToCompass } from '../../shared/utils/wind-direction.util';
 import { formatDateInZone, formatTimeInZone } from '../../shared/utils/weather-forecast.util';
 import { ClockService } from '../../core/services/clock.service';
+import { TemperatureUnitService } from '../../core/services/temperature-unit.service';
 
 @Component({
   selector: 'app-current-conditions',
@@ -20,6 +21,7 @@ export class CurrentConditionsComponent {
   @Input() timezone = 'UTC';
 
   private readonly clock = inject(ClockService);
+  protected readonly unit = inject(TemperatureUnitService).unit;
 
   protected icon(): string { return getWeatherIcon(this.weather.weatherCode, this.weather.isDay); }
   protected label(): string { return getWeatherLabel(this.weather.weatherCode); }

@@ -3,6 +3,7 @@ import { take } from 'rxjs/operators';
 import { WeatherService } from './weather.service';
 import { GeolocationService } from './geolocation.service';
 import { LocationSearchService } from './location-search.service';
+import { TemperatureUnitService } from './temperature-unit.service';
 import { GeolocationCoords, WeatherLocation } from '../interfaces/location.interface';
 import { getWeatherTheme } from '../../shared/utils/weather-code.util';
 import { timezoneToCity } from '../../shared/utils/weather-forecast.util';
@@ -12,8 +13,10 @@ export class WeatherFacadeService {
   private readonly weatherService = inject(WeatherService);
   private readonly geoService = inject(GeolocationService);
   private readonly locationService = inject(LocationSearchService);
+  private readonly unitService = inject(TemperatureUnitService);
 
   readonly weather = this.weatherService.weather;
+  readonly unit = this.unitService.unit;
   readonly loading = this.weatherService.loading;
   readonly error = this.weatherService.error;
   readonly location = this.locationService.location;
@@ -52,5 +55,9 @@ export class WeatherFacadeService {
 
   clearSearch(): void {
     this.locationService.clearResults();
+  }
+
+  toggleUnit(): void {
+    this.unitService.toggle();
   }
 }

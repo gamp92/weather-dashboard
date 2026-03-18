@@ -21,6 +21,14 @@
       </div>
     }
 
+    <div class="dashboard__controls">
+      <button
+        class="dashboard__unit-toggle"
+        (click)="onToggleUnit()"
+        [attr.aria-label]="'Switch to ' + (facade.unit() === 'C' ? 'Fahrenheit' : 'Celsius')"
+      >°{{ facade.unit() === 'C' ? 'F' : 'C' }}</button>
+    </div>
+
     @if (facade.weather(); as weather) {
       <app-current-conditions [weather]="weather.current" [locationName]="facade.locationName()" [timezone]="weather.timezone" />
       <app-forecast-hourly [hourly]="weather.hourly" [currentTime]="weather.current.time" />
