@@ -37,4 +37,8 @@ export class DashboardComponent implements OnInit {
   protected onSearchClear(): void {
     this.facade.clearSearch();
   }
+
+  protected onToggleUnit(): void {
+    this.facade.toggleUnit();
+  }
 }
