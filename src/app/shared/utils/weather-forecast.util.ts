@@ -25,7 +25,7 @@ export const formatFullDate = (isoDate: string): string =>
   new Date(`${isoDate}T12:00:00`).toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
 
 export const timezoneToCity = (tz: string): string => {
-  if (!tz || !tz.includes('/')) return 'Your Location';
+  if (!tz.includes('/')) return 'Your Location';
   return tz.split('/').at(-1)?.replace(/_/g, ' ') ?? 'Your Location';
 };
 

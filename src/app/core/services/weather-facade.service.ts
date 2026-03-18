@@ -3,7 +3,7 @@ import { take } from 'rxjs/operators';
 import { WeatherService } from './weather.service';
 import { GeolocationService } from './geolocation.service';
 import { LocationSearchService } from './location-search.service';
-import { WeatherLocation } from '../interfaces/location.interface';
+import { GeolocationCoords, WeatherLocation } from '../interfaces/location.interface';
 import { getWeatherTheme } from '../../shared/utils/weather-code.util';
 import { timezoneToCity } from '../../shared/utils/weather-forecast.util';
 
@@ -31,9 +31,14 @@ export class WeatherFacadeService {
       .getCurrentCoords()
       .pipe(take(1))
       .subscribe({
-        next: coords => { this.weatherService.loadWeatherByCoords(coords); },
+        next: coords => { this.onGeoSuccess(coords); },
         error: () => { this.weatherService.loadDefault(); },
       });
+  }
+
+  private onGeoSuccess(coords: GeolocationCoords): void {
+    this.weatherService.loadWeatherByCoords(coords);
+    this.locationService.setLocationFromCoords(coords);
   }
 
   selectLocation(location: WeatherLocation): void {
