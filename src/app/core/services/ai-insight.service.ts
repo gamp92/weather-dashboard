@@ -1,31 +1,23 @@
-// NOTE: In production the endpoint in AiConfig should point to a backend proxy.
-// Calling an AI provider directly from the browser exposes the API key in
-// network requests. The architecture supports swapping the endpoint without
-// any other code changes.
-
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { EMPTY, Observable, Subject } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { WeatherData } from '../interfaces/weather.interface';
 import {
   AI_CONFIG,
-  AiConfig,
-  AiRequestBody,
-  AnthropicResponse,
+  InsightRequest,
+  InsightResponse,
   WeatherInsight,
   WeatherInsightState,
 } from '../interfaces/ai-insight.interface';
 import { buildWeatherPrompt, parseInsightResponse } from '../../shared/utils/ai-prompt.util';
 import { sanitizeError } from '../../shared/utils/error-sanitizer.util';
 
-const MAX_TOKENS = 256;
-
 interface AiTrigger {
+  readonly endpoint: string;
   readonly location: string;
   readonly weather: WeatherData;
-  readonly config: AiConfig;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -47,37 +39,21 @@ export class AiInsightService {
   }
 
   generate(location: string, weather: WeatherData): void {
-    const config = this.config;
-    if (!config?.apiKey) return;
+    const endpoint = this.config?.endpoint;
+    if (!endpoint) return;
     this.state.update(s => ({ ...s, loading: true, error: null }));
-    this.trigger.next({ location, weather, config });
+    this.trigger.next({ endpoint, location, weather });
   }
 
-  private buildHeaders(cfg: AiConfig): HttpHeaders {
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'x-api-key': cfg.apiKey,
-      'anthropic-version': '2023-06-01',
-    });
-  }
-
-  private buildBody(cfg: AiConfig, req: AiTrigger): AiRequestBody {
-    return {
-      model: cfg.model,
-      max_tokens: MAX_TOKENS,
-      messages: [{ role: 'user', content: buildWeatherPrompt(req.location, req.weather) }],
-    };
-  }
-
-  private parseResponse(r: AnthropicResponse): WeatherInsight | null {
-    return parseInsightResponse(r.content[0]?.text ?? '');
+  private buildBody(req: AiTrigger): InsightRequest {
+    return { prompt: buildWeatherPrompt(req.location, req.weather) };
   }
 
   private fetchInsight(req: AiTrigger): Observable<WeatherInsight | null> {
     return this.http
-      .post<AnthropicResponse>(req.config.endpoint, this.buildBody(req.config, req), { headers: this.buildHeaders(req.config) })
+      .post<InsightResponse>(req.endpoint, this.buildBody(req))
       .pipe(
-        map(r => this.parseResponse(r)),
+        map(r => parseInsightResponse(r.text)),
         catchError((e: Error) => { this.onError(e); return EMPTY; }),
       );
   }
