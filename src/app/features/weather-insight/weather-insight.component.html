@@ -1,0 +1,48 @@
+@if (isLoading()) {
+  <section
+    class="insight glass-card"
+    role="status"
+    aria-label="Generating AI weather insight"
+    aria-live="polite"
+    aria-atomic="true"
+  >
+    <span class="insight__spinner" aria-hidden="true"></span>
+    <p class="insight__loading-text">Generating insight…</p>
+  </section>
+}
+
+@if (insightData(); as data) {
+  <section class="insight glass-card" aria-label="AI weather insight" aria-live="polite" aria-atomic="false">
+    <p class="insight__summary">{{ data.summary }}</p>
+
+    @if (data.outfitSuggestions.length) {
+      <div class="insight__group">
+        <h3 class="insight__group-label">Outfit</h3>
+        <ul class="insight__chips" aria-label="Outfit suggestions">
+          @for (item of data.outfitSuggestions; track item) {
+            <li class="insight__chip">{{ item }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    @if (data.activitySuggestions.length) {
+      <div class="insight__group">
+        <h3 class="insight__group-label">Activities</h3>
+        <ul class="insight__chips" aria-label="Activity suggestions">
+          @for (item of data.activitySuggestions; track item) {
+            <li class="insight__chip insight__chip--activity">{{ item }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </section>
+}
+
+@if (errorMsg()) {
+  <p
+    class="insight__error glass-card"
+    role="alert"
+    aria-live="assertive"
+  >{{ errorMsg() }}</p>
+}

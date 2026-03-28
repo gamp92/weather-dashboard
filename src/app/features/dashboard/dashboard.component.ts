@@ -5,6 +5,7 @@ import { LocationSearchComponent } from '../location-search/location-search.comp
 import { CurrentConditionsComponent } from '../current-conditions/current-conditions.component';
 import { ForecastHourlyComponent } from '../forecast-hourly/forecast-hourly.component';
 import { ForecastDailyComponent } from '../forecast-daily/forecast-daily.component';
+import { WeatherInsightComponent } from '../weather-insight/weather-insight.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,6 +14,7 @@ import { ForecastDailyComponent } from '../forecast-daily/forecast-daily.compone
   imports: [
     LocationSearchComponent,
     CurrentConditionsComponent,
+    WeatherInsightComponent,
     ForecastHourlyComponent,
     ForecastDailyComponent,
   ],

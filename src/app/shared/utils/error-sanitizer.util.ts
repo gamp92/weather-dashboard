@@ -9,6 +9,8 @@ const ERROR_MESSAGE_MAP: readonly (readonly [string, string])[] = [
   ['network error',            'Network error. Please check your connection.'],
   [': 429',                    'Too many requests. Please wait a moment.'],
   [': 404',                    'No data found for this location.'],
+  [': 401',                    'Service authentication failed. Check the API key.'],
+  [': 529',                    'AI service is overloaded. Please try again shortly.'],
   [': 5',                      'Weather service is temporarily unavailable.'],
   ['Http failure response',    'Weather service is temporarily unavailable.'],
   ['PERMISSION_DENIED',        'Location access denied. Please search for a city manually.'],
