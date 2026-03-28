@@ -1,6 +1,6 @@
 # Weather Dashboard
 
-An Apple-style weather forecast dashboard built with Angular 19, powered by the free [Open-Meteo API](https://open-meteo.com/). No API key required.
+An Apple-style weather forecast dashboard built with Angular 19, powered by the free [Open-Meteo API](https://open-meteo.com/). No API key required for weather data. Optional AI insight feature uses the Anthropic Messages API.
 
 ---
 
@@ -9,9 +9,11 @@ An Apple-style weather forecast dashboard built with Angular 19, powered by the 
 - **Current conditions** — temperature, feels like, humidity, wind speed & direction
 - **24-hour forecast** — hourly temperature and weather icons
 - **7-day forecast** — daily high/low cards
+- **Temperature unit toggle** — switch between °C and °F; all values update simultaneously
 - **Location search** — search any city by name
 - **Auto geolocation** — detects your location on load (browser permission required)
 - **Dynamic theming** — background adapts to weather conditions (sunny, rainy, stormy, etc.)
+- **AI weather insight** *(optional)* — natural language summary of current conditions and the week ahead, plus outfit and activity suggestions; powered by the Anthropic Messages API
 
 ---
 
@@ -75,18 +77,23 @@ src/
   app/
     core/
       interfaces/          # TypeScript interfaces (domain + API response types)
+                           # includes ai-insight.interface.ts (WeatherInsight,
+                           # AiConfig, AI_CONFIG token, Anthropic response types)
       services/            # WeatherService, GeolocationService,
-                           # LocationSearchService, WeatherFacadeService
+                           # LocationSearchService, WeatherFacadeService,
+                           # AiInsightService, TemperatureUnitService
     features/
       dashboard/           # Main orchestrator component
       current-conditions/  # Current weather card
       location-search/     # Search bar + results dropdown
+      weather-insight/     # AI summary + outfit/activity chip card
       forecast-daily/      # 7-day forecast + ForecastDayCard child
       forecast-hourly/     # 24h forecast + ForecastHourItem child
     shared/
       pipes/               # TemperaturePipe
       utils/               # weather-code, wind-direction, weather-forecast,
-                           # error-sanitizer, coordinate-validator
+                           # error-sanitizer, coordinate-validator,
+                           # ai-prompt (prompt builder + response parser)
   styles/
     _variables.scss        # Design tokens (colors, spacing, typography)
     _reset.scss            # CSS reset
@@ -104,8 +111,34 @@ Uses [Open-Meteo](https://open-meteo.com/) — completely free, no API key, GDPR
 |---|---|
 | `api.open-meteo.com/v1/forecast` | Current, hourly, and daily weather |
 | `geocoding-api.open-meteo.com/v1/search` | City name search |
+| `api.bigdatacloud.net/data/reverse-geocode-client` | GPS coords → city name |
+| `api.anthropic.com/v1/messages` | AI weather insight (optional) |
 
-**Privacy note:** Your GPS coordinates (if geolocation is granted) and city search queries are sent to Open-Meteo servers to retrieve weather data.
+**Privacy note:** Your GPS coordinates (if geolocation is granted) and city search queries are sent to Open-Meteo servers to retrieve weather data. If the AI insight feature is enabled, sanitized weather data (numbers and condition codes only — no personal data) is sent to the Anthropic API.
+
+### Enabling AI insights
+
+Provide `AI_CONFIG` in `src/app/app.config.ts`:
+
+```ts
+import { AI_CONFIG } from './core/interfaces/ai-insight.interface';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    // ...existing providers
+    {
+      provide: AI_CONFIG,
+      useValue: {
+        endpoint: 'https://api.anthropic.com/v1/messages',
+        apiKey: 'YOUR_API_KEY',
+        model: 'claude-3-5-haiku-20241022', // or whichever model you choose
+      },
+    },
+  ],
+};
+```
+
+> **Production warning:** Never ship an API key in a client-side bundle. In production, set `endpoint` to a backend proxy URL that adds the key server-side. The architecture requires no other code changes to switch endpoints.
 
 ---
 
@@ -119,6 +152,14 @@ Uses [Open-Meteo](https://open-meteo.com/) — completely free, no API key, GDPR
 - All API calls use HTTPS
 - User inputs validated (maxlength, range checks, URL encoding)
 - Error messages sanitized before display — no internal details exposed
+
+### AI-specific security
+
+- **Prompt injection prevention** — location strings are stripped of structural characters (`\n`, `{}`, `"`, `<>`, `;`) before interpolation into the AI prompt
+- **Numeric validation** — all weather values are checked with `safeNum()` before reaching the prompt, guarding against a compromised upstream API returning non-numeric data
+- **Response sanitization** — AI output is treated as untrusted: JSON shape is validated, summary capped at 300 chars, chip arrays capped at 5 items × 40 chars, non-string values dropped
+- **No `innerHTML`** — all AI text is rendered via Angular's `{{ }}` interpolation only
+- **API key never in response body** — the key travels in the `x-api-key` header only; the request body is inspected in tests to confirm this
 
 ---
 
