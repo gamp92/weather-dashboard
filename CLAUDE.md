@@ -29,6 +29,7 @@ src/app/
     pipes/        — pure transform pipes
     utils/        — pure functions only, no Angular dependencies
 testing/          — all spec files live here (not next to source)
+api/              — Vercel serverless functions (Node.js, not Angular)
 ```
 
 ---
@@ -64,6 +65,9 @@ Any user-triggered HTTP call (search, location change) must use `switchMap` so r
 
 ### No direct DOM manipulation
 Never use `nativeElement`, `document.querySelector`, or similar. Drive all view state through signals and Angular template bindings.
+
+### Facade pattern — components inject one service only
+`WeatherFacadeService` is the single entry point for all state in components. Never inject `WeatherService`, `LocationSearchService`, `AiInsightService`, `TemperatureUnitService`, or `ClockService` directly into a component. All orchestration belongs in the facade.
 
 ---
 
@@ -109,6 +113,8 @@ Always use `[attr.aria-label]="expression"` for any ARIA attribute with a dynami
 - Use `fakeAsync` + `tick(ms)` for anything with `debounceTime` or `setTimeout`
 - Use `HttpTestingController` for all HTTP — never mock `HttpClient` directly
 - TDD on every bug: write a failing test first, then fix
+- Every file in `shared/pipes/` must have a corresponding spec in `testing/` — pipes have no ESLint enforcement so bugs slip through silently (the missing `°C`/`°F` unit was caught visually, not by a test)
+- Every file in `shared/utils/` must have a corresponding spec in `testing/`
 
 ---
 
@@ -124,6 +130,64 @@ Always use `[attr.aria-label]="expression"` for any ARIA attribute with a dynami
 | `no-param-reassign` | pure function style |
 | `@typescript-eslint/no-explicit-any` | no `any` |
 | `@typescript-eslint/explicit-function-return-type` | always |
+
+---
+
+## Local Development
+
+Two terminals are required when working on the AI insight feature:
+
+| Terminal | Command | Purpose |
+|---|---|---|
+| 1 | `node server.local.js` | Local API server on port 3002 (calls Groq) |
+| 2 | `ng serve` | Angular dev server on port 4200 |
+
+- `proxy.conf.json` connects them — Angular forwards `/api/*` to port 3002 automatically
+- Without `server.local.js`, the AI card silently shows nothing (graceful no-op) — no crash, no visible error
+- `ng serve` alone works for everything except the AI insight feature
+- Never use `vercel dev` for local development — it conflicts with Angular 19's internal Vite setup
+- **Secrets**: `.env` = local dev only (gitignored). Production secrets go in the Vercel dashboard under Environment Variables. Never put production secrets in `.env` and never commit it.
+
+---
+
+## AI Feature
+
+### Groq model name lives in two places — always update both
+- `api/insight.ts` (production, runs on Vercel)
+- `server.local.js` (local dev only)
+
+If you change the model, update both files.
+
+### `AI_CONFIG.endpoint` must always be a relative path
+`app.config.ts` provides `{ endpoint: '/api/insight' }`. Never change this to an absolute URL — the relative path works for both local (proxied by Angular) and production (Vercel routing).
+
+### AI responses are untrusted input
+Everything returned by Groq must go through `parseInsightResponse()` in `src/app/shared/utils/ai-prompt.util.ts` before entering application state. Never use the raw AI text directly.
+
+### Server-side API calls do not need CSP entries
+Calls made from `api/` (Node.js, server-side) are invisible to the browser — they do not need `connect-src` entries in `src/index.html`. Only add CSP entries for domains the **browser** calls directly.
+
+---
+
+## Temperature and Units
+
+- The `TemperaturePipe` must always return the unit letter: `26°C` or `79°F` — never bare `26°`
+- The unit toggle button shows the unit you'd **switch to**, not the current unit — this is intentional UX
+- Always pass the `unit()` signal as the second argument to the `temperature` pipe: `{{ value | temperature : unit() }}`
+
+---
+
+## Use Existing Utilities — Do Not Duplicate
+
+Before writing new validation, formatting, or lookup logic, check these first:
+
+| Utility | Location | Use for |
+|---|---|---|
+| `sanitizeError()` | `shared/utils/error-sanitizer.util.ts` | All user-facing error messages |
+| `isValidCoords()` | `shared/utils/coordinate-validator.util.ts` | Before any API call with coordinates |
+| `getWeatherLabel()` | `shared/utils/weather-code.util.ts` | WMO weather code → label/icon/theme |
+| `buildWeatherPrompt()` | `shared/utils/ai-prompt.util.ts` | Building prompts for Groq |
+| `parseInsightResponse()` | `shared/utils/ai-prompt.util.ts` | Parsing and validating AI responses |
 
 ---
 
