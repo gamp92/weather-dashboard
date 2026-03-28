@@ -1,12 +1,19 @@
 <div class="dashboard" [class]="'theme-' + facade.theme()">
   <div class="dashboard__inner">
-    <app-location-search
-      [results]="facade.searchResults()"
-      [loading]="facade.searchLoading()"
-      (citySearch)="onSearch($event)"
-      (locationSelected)="onLocationSelected($event)"
-      (cleared)="onSearchClear()"
-    />
+    <div class="dashboard__search-row">
+      <app-location-search
+        [results]="facade.searchResults()"
+        [loading]="facade.searchLoading()"
+        (citySearch)="onSearch($event)"
+        (locationSelected)="onLocationSelected($event)"
+        (cleared)="onSearchClear()"
+      />
+      <button
+        class="dashboard__unit-toggle glass-card"
+        (click)="onToggleUnit()"
+        [attr.aria-label]="'Switch to ' + (facade.unit() === 'C' ? 'Fahrenheit' : 'Celsius')"
+      >°{{ facade.unit() === 'C' ? 'F' : 'C' }}</button>
+    </div>
 
     @if (facade.loading()) {
       <div class="dashboard__loading" role="status" aria-live="polite">
@@ -20,14 +27,6 @@
         <p>{{ facade.error() }}</p>
       </div>
     }
-
-    <div class="dashboard__controls">
-      <button
-        class="dashboard__unit-toggle"
-        (click)="onToggleUnit()"
-        [attr.aria-label]="'Switch to ' + (facade.unit() === 'C' ? 'Fahrenheit' : 'Celsius')"
-      >°{{ facade.unit() === 'C' ? 'F' : 'C' }}</button>
-    </div>
 
     @if (facade.weather(); as weather) {
       <app-current-conditions [weather]="weather.current" [locationName]="facade.locationName()" [timezone]="weather.timezone" />
