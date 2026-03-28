@@ -127,15 +127,27 @@ Always use `[attr.aria-label]="expression"` for any ARIA attribute with a dynami
 
 ---
 
+## Vercel Serverless Functions (`api/`)
+
+- Every file in `api/` is a Node.js serverless function — it runs in a different runtime from Angular
+- The root `tsconfig.json` uses `"moduleResolution": "bundler"` (Angular-specific) which breaks Node.js — never let `api/` files inherit it
+- `api/tsconfig.json` must always exist with `"module": "CommonJS"` and `"moduleResolution": "node"`
+- API keys must come from `process.env` — never hardcoded, never passed from the client
+- Before pushing any change to `api/`, run `vercel build` locally to catch config/compilation errors before they hit production
+
+---
+
 ## Workflow
 
 1. `npx eslint . --fix` — fix all lint errors
 2. `npx jest --no-coverage` — all tests must pass
-3. Security checklist:
+3. If `api/` was changed: `vercel build` — must complete without errors
+4. Security checklist:
    - [ ] No raw error messages shown to user — used `sanitizeError()`
    - [ ] All `<input>` fields have `maxlength` + `type`
    - [ ] URL params use `encodeURIComponent()`
    - [ ] No new external domains without CSP update in `src/index.html`
    - [ ] No `bypassSecurityTrust*` or `innerHTML`
    - [ ] Coordinates validated with `isValidCoords()` before API use
-4. Audit changed code against Angular patterns above
+   - [ ] Any new `api/` function has its own `tsconfig.json` or inherits `api/tsconfig.json`
+5. Audit changed code against Angular patterns above
