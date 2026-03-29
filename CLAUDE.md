@@ -146,7 +146,7 @@ Two terminals are required when working on the AI insight feature:
 - Without `server.local.js`, the AI card silently shows nothing (graceful no-op) — no crash, no visible error
 - `ng serve` alone works for everything except the AI insight feature
 - Never use `vercel dev` for local development — it conflicts with Angular 19's internal Vite setup
-- **Secrets**: `.env` = local dev only (gitignored). Production secrets go in the Vercel dashboard under Environment Variables. Never put production secrets in `.env` and never commit it.
+- **Secrets**: `.env` = local dev only (gitignored). Required variable: `GROQ_API_KEY=<your-groq-key>`. Production secrets go in the Vercel dashboard under Environment Variables. Never put production secrets in `.env` and never commit it.
 
 ---
 
@@ -188,6 +188,8 @@ Before writing new validation, formatting, or lookup logic, check these first:
 | `getWeatherLabel()` | `shared/utils/weather-code.util.ts` | WMO weather code → label/icon/theme |
 | `buildWeatherPrompt()` | `shared/utils/ai-prompt.util.ts` | Building prompts for Groq |
 | `parseInsightResponse()` | `shared/utils/ai-prompt.util.ts` | Parsing and validating AI responses |
+| `getNext24Hours()`, `formatHour()`, `formatDay()`, `formatFullDate()`, `timezoneToCity()`, `formatTimeInZone()`, `formatDateInZone()` | `shared/utils/weather-forecast.util.ts` | Forecast slicing and date/time formatting |
+| `degreeToCompass()` | `shared/utils/wind-direction.util.ts` | Wind degrees → compass label (N, NNE, …) |
 
 ---
 
