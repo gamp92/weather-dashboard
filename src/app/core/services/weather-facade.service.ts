@@ -5,6 +5,7 @@ import { GeolocationService } from './geolocation.service';
 import { LocationSearchService } from './location-search.service';
 import { TemperatureUnitService } from './temperature-unit.service';
 import { AiInsightService } from './ai-insight.service';
+import { NewsService } from './news.service';
 import { GeolocationCoords, WeatherLocation } from '../interfaces/location.interface';
 import { getWeatherTheme } from '../../shared/utils/weather-code.util';
 import { timezoneToCity } from '../../shared/utils/weather-forecast.util';
@@ -16,6 +17,7 @@ export class WeatherFacadeService {
   private readonly locationService = inject(LocationSearchService);
   private readonly unitService = inject(TemperatureUnitService);
   private readonly aiService = inject(AiInsightService);
+  private readonly newsService = inject(NewsService);
 
   readonly weather = this.weatherService.weather;
   readonly unit = this.unitService.unit;
@@ -27,6 +29,9 @@ export class WeatherFacadeService {
   readonly aiInsight = this.aiService.insight;
   readonly aiLoading = this.aiService.loading;
   readonly aiError = this.aiService.error;
+  readonly newsArticles = this.newsService.articles;
+  readonly newsLoading = this.newsService.loading;
+  readonly newsError = this.newsService.error;
   readonly theme = computed(() =>
     getWeatherTheme(this.weather()?.current.weatherCode ?? 0, this.weather()?.current.isDay ?? true)
   );
@@ -43,6 +48,7 @@ export class WeatherFacadeService {
     if (!weather) return;
     const name = untracked(() => this.locationName());
     this.aiService.generate(name, weather);
+    this.newsService.loadForLocation(name);
   }
 
   initGeolocation(): void {

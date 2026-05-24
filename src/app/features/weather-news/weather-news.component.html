@@ -1,0 +1,32 @@
+@if (isLoading()) {
+  <section class="news glass-card" role="status" aria-label="Loading weather news" aria-live="polite">
+    <span class="news__spinner" aria-hidden="true"></span>
+    <p class="news__loading-text">Loading news…</p>
+  </section>
+}
+
+@if (articleList().length > 0) {
+  <section class="news glass-card" aria-label="Weather news">
+    <h2 class="news__title">Weather News</h2>
+    <ul class="news__list" aria-label="News articles">
+      @for (article of articleList(); track article.id) {
+        <li class="news__item">
+          <a
+            class="news__link"
+            [href]="article.url"
+            target="_blank"
+            rel="noopener noreferrer"
+          >{{ article.title }}</a>
+          <time class="news__date" [attr.datetime]="article.publishedAt">
+            {{ article.publishedAt | date: 'mediumDate' }}
+          </time>
+        </li>
+      }
+    </ul>
+    <p class="news__attribution">Powered by The Guardian</p>
+  </section>
+}
+
+@if (errorMsg()) {
+  <p class="news__error glass-card" role="alert" aria-live="assertive">{{ errorMsg() }}</p>
+}

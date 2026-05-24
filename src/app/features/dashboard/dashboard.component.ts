@@ -6,6 +6,7 @@ import { CurrentConditionsComponent } from '../current-conditions/current-condit
 import { ForecastHourlyComponent } from '../forecast-hourly/forecast-hourly.component';
 import { ForecastDailyComponent } from '../forecast-daily/forecast-daily.component';
 import { WeatherInsightComponent } from '../weather-insight/weather-insight.component';
+import { WeatherNewsComponent } from '../weather-news/weather-news.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -17,6 +18,7 @@ import { WeatherInsightComponent } from '../weather-insight/weather-insight.comp
     WeatherInsightComponent,
     ForecastHourlyComponent,
     ForecastDailyComponent,
+    WeatherNewsComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
