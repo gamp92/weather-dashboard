@@ -37,6 +37,11 @@
       />
       <app-forecast-hourly [hourly]="weather.hourly" [currentTime]="weather.current.time" />
       <app-forecast-daily [daily]="weather.daily" />
+      <app-weather-news
+        [articles]="facade.newsArticles()"
+        [loading]="facade.newsLoading()"
+        [error]="facade.newsError()"
+      />
     }
   </div>
 </div>
