@@ -1,5 +1,7 @@
 # Weather Dashboard
 
+**Live demo:** https://weather-dashboard-beryl-iota.vercel.app/
+
 An Apple-style weather forecast dashboard built with Angular 19, powered by the free [Open-Meteo API](https://open-meteo.com/). No API key required for weather data. Optional AI insight feature uses the Anthropic Messages API.
 
 ---
